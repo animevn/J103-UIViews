@@ -1,8 +1,11 @@
 package com.haanhgs.app.uidemomore;
 
-import android.app.Activity;
+import android.annotation.SuppressLint;
 import android.content.pm.ActivityInfo;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.text.TextUtils;
+import android.view.View;
 import android.view.WindowManager;
 import android.webkit.WebView;
 import android.widget.Button;
@@ -68,6 +71,73 @@ public class MainActivity extends AppCompatActivity {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
     }
 
+    private void handleCheckBoxTransparent(){
+        cbTransparent.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked){
+                ivImage.setAlpha(0.3f);
+            }else {
+                ivImage.setAlpha(1f);
+            }
+        });
+    }
+
+    private void handleCheckBoxTint(){
+        cbTint.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked){
+                ivImage.setColorFilter(Color.argb(128, 255, 255, 0));
+            }else {
+                ivImage.setColorFilter(Color.argb(0, 0, 0, 0));
+            }
+        });
+    }
+
+    private void handleCheckBoxResize(){
+        cbResize.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked){
+                ivImage.setScaleX(.5f);
+                ivImage.setScaleY(.5f);
+            }else {
+                ivImage.setScaleX(1f);
+                ivImage.setScaleY(1f);
+            }
+        });
+    }
+
+    private void toggleRadioGroupLocation(){
+        rgLocation.setOnCheckedChangeListener((group, checkedId) -> {
+            switch (checkedId){
+                case R.id.rbnBerlin:
+                    tcClock.setTimeZone(Berlin);
+                    break;
+                case R.id.rbnParis:
+                    tcClock.setTimeZone(Paris);
+                    break;
+                case R.id.rbnSaigon:
+                    tcClock.setTimeZone(Saigon);
+                    break;
+            }
+        });
+    }
+
+    //enable javascript
+    @SuppressLint("SetJavaScriptEnabled")
+    private void setupWebView(){
+        swToggleWeb.setChecked(false);
+        wvWeb.setVisibility(View.INVISIBLE);
+        wvWeb.getSettings().setJavaScriptEnabled(true);
+        wvWeb.loadUrl("https://www.quora.com/");
+    }
+
+    private void handleSwitchWebView(){
+        swToggleWeb.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked){
+                if (wvWeb.getVisibility() == View.INVISIBLE) wvWeb.setVisibility(View.VISIBLE);
+            }else {
+                if (wvWeb.getVisibility() == View.VISIBLE) wvWeb.setVisibility(View.INVISIBLE);
+            }
+        });
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -75,9 +145,18 @@ public class MainActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         showFullScreen();
         setPortraitMode();
+        handleCheckBoxTransparent();
+        handleCheckBoxTint();
+        handleCheckBoxResize();
+        toggleRadioGroupLocation();
+        setupWebView();
+        handleSwitchWebView();
     }
 
     @OnClick(R.id.bnLocation)
     public void onViewClicked() {
+        if (!TextUtils.isEmpty(etLocation.getText())){
+            bnLocation.setText(etLocation.getText().toString());
+        }
     }
 }
