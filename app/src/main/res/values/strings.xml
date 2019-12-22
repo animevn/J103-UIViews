@@ -1,3 +1,12 @@
 <resources>
     <string name="app_name">UIDemoMore</string>
+    <string name="cbTransparent">Transparent</string>
+    <string name="cbTint">Tint</string>
+    <string name="cbResize">Resize</string>
+    <string name="imageDescription">not error</string>
+    <string name="rbnSaigon">Saigon</string>
+    <string name="rbnParis">Paris</string>
+    <string name="rbnBerlin">Berlin</string>
+    <string name="bnLocation">Write something?</string>
+    <string name="swToggleWeb">On/Off</string>
 </resources>
