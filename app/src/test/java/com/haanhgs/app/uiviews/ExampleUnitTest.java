@@ -1,4 +1,4 @@
-package com.haanhgs.app.uidemomore;
+package com.haanhgs.app.uiviews;
 
 import org.junit.Test;
 
