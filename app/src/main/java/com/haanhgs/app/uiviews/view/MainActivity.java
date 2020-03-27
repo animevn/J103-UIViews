@@ -1,7 +1,6 @@
-package com.haanhgs.app.uiviews;
+package com.haanhgs.app.uiviews.view;
 
 import android.annotation.SuppressLint;
-import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -12,17 +11,18 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Switch;
 import android.widget.TextClock;
+import com.haanhgs.app.uiviews.R;
+import com.haanhgs.app.uiviews.model.Model;
+import com.haanhgs.app.uiviews.viewmodel.MyViewModel;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.lifecycle.ViewModelProvider;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-//test
 public class MainActivity extends AppCompatActivity {
 
     @BindView(R.id.cbTransparent)
@@ -33,14 +33,6 @@ public class MainActivity extends AppCompatActivity {
     CheckBox cbResize;
     @BindView(R.id.ivImage)
     ImageView ivImage;
-    @BindView(R.id.clLeft)
-    ConstraintLayout clLeft;
-    @BindView(R.id.rbnSaigon)
-    RadioButton rbnSaigon;
-    @BindView(R.id.rbnParis)
-    RadioButton rbnParis;
-    @BindView(R.id.rbnBerlin)
-    RadioButton rbnBerlin;
     @BindView(R.id.rgLocation)
     RadioGroup rgLocation;
     @BindView(R.id.etLocation)
@@ -49,18 +41,12 @@ public class MainActivity extends AppCompatActivity {
     Button bnLocation;
     @BindView(R.id.tcClock)
     TextClock tcClock;
-    @BindView(R.id.clRight)
-    ConstraintLayout clRight;
     @BindView(R.id.swToggleWeb)
     Switch swToggleWeb;
     @BindView(R.id.wvWeb)
     WebView wvWeb;
-    @BindView(R.id.clDown)
-    ConstraintLayout clDown;
 
-    private static final String Paris = "Europ/Paris";
-    private static final String Berlin = "Europe/Berlin";
-    private static final String Saigon = "Asia/Ho_Chi_Minh";
+    private MyViewModel viewModel;
 
     private void showFullScreen(){
         if (getSupportActionBar() != null) getSupportActionBar().hide();
@@ -68,53 +54,47 @@ public class MainActivity extends AppCompatActivity {
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
     }
 
-    private void setPortraitMode(){
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+    private void initViewModel(){
+        viewModel = new ViewModelProvider(this).get(MyViewModel.class);
+
+        viewModel.getModel().observe(this, model -> {
+            tcClock.setTimeZone(model.getTimezone());
+            ivImage.setAlpha(model.getAlpha());
+            ivImage.setScaleX(model.getScale());
+            ivImage.setScaleY(model.getScale());
+            ivImage.setColorFilter(model.getFilter());
+            wvWeb.setVisibility(model.isShow() ? View.VISIBLE : View.INVISIBLE);
+            bnLocation.setText(model.getString());
+        });
     }
 
     private void handleCheckBoxTransparent(){
-        cbTransparent.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (isChecked){
-                ivImage.setAlpha(0.3f);
-            }else {
-                ivImage.setAlpha(1f);
-            }
-        });
+        cbTransparent.setOnCheckedChangeListener((buttonView, isChecked) ->
+                viewModel.setAlpha(isChecked ? 0.3f : 1f));
     }
 
     private void handleCheckBoxTint(){
-        cbTint.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (isChecked){
-                ivImage.setColorFilter(Color.argb(128, 255, 255, 0));
-            }else {
-                ivImage.setColorFilter(Color.argb(0, 0, 0, 0));
-            }
-        });
+        cbTint.setOnCheckedChangeListener((buttonView, isChecked) ->
+            viewModel.setFilter(isChecked ? Color.argb(128, 255, 255, 0) : Color.argb(0, 0, 0, 0)));
     }
 
     private void handleCheckBoxResize(){
-        cbResize.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (isChecked){
-                ivImage.setScaleX(.5f);
-                ivImage.setScaleY(.5f);
-            }else {
-                ivImage.setScaleX(1f);
-                ivImage.setScaleY(1f);
-            }
-        });
+        cbResize.setOnCheckedChangeListener((buttonView, isChecked) ->
+                viewModel.setScale(isChecked ? 0.5f : 1f));
     }
 
     private void toggleRadioGroupLocation(){
+        rgLocation.check(R.id.rbnSaigon);
         rgLocation.setOnCheckedChangeListener((group, checkedId) -> {
             switch (checkedId){
                 case R.id.rbnBerlin:
-                    tcClock.setTimeZone(Berlin);
+                    viewModel.setTimezone(Model.Berlin);
                     break;
                 case R.id.rbnParis:
-                    tcClock.setTimeZone(Paris);
+                    viewModel.setTimezone(Model.Paris);
                     break;
                 case R.id.rbnSaigon:
-                    tcClock.setTimeZone(Saigon);
+                    viewModel.setTimezone(Model.Saigon);
                     break;
             }
         });
@@ -123,20 +103,14 @@ public class MainActivity extends AppCompatActivity {
     //enable javascript
     @SuppressLint("SetJavaScriptEnabled")
     private void setupWebView(){
-        swToggleWeb.setChecked(false);
-        wvWeb.setVisibility(View.INVISIBLE);
+        swToggleWeb.setChecked(true);
         wvWeb.getSettings().setJavaScriptEnabled(true);
         wvWeb.loadUrl("https://www.quora.com/");
     }
 
     private void handleSwitchWebView(){
-        swToggleWeb.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (isChecked){
-                if (wvWeb.getVisibility() == View.INVISIBLE) wvWeb.setVisibility(View.VISIBLE);
-            }else {
-                if (wvWeb.getVisibility() == View.VISIBLE) wvWeb.setVisibility(View.INVISIBLE);
-            }
-        });
+        swToggleWeb.setOnCheckedChangeListener((buttonView, isChecked)
+                -> viewModel.setShow(isChecked));
     }
 
     @Override
@@ -145,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
         showFullScreen();
-        setPortraitMode();
+        initViewModel();
         handleCheckBoxTransparent();
         handleCheckBoxTint();
         handleCheckBoxResize();
@@ -157,7 +131,7 @@ public class MainActivity extends AppCompatActivity {
     @OnClick(R.id.bnLocation)
     public void onViewClicked() {
         if (!TextUtils.isEmpty(etLocation.getText())){
-            bnLocation.setText(etLocation.getText().toString());
+            viewModel.setString(etLocation.getText().toString());
         }
     }
 }
