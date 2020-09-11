@@ -4,7 +4,7 @@ import android.graphics.Color;
 
 public class Model {
 
-    public static final String Paris = "Europ/Paris";
+    public static final String Paris = "Europe/Paris";
     public static final String Berlin = "Europe/Berlin";
     public static final String Saigon = "Asia/Ho_Chi_Minh";
 

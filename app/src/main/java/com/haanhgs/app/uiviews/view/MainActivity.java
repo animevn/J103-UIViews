@@ -2,9 +2,12 @@ package com.haanhgs.app.uiviews.view;
 
 import android.annotation.SuppressLint;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
+import android.view.WindowInsets;
+import android.view.WindowInsetsController;
 import android.view.WindowManager;
 import android.webkit.WebView;
 import android.widget.Button;
@@ -48,10 +51,18 @@ public class MainActivity extends AppCompatActivity {
 
     private MyViewModel viewModel;
 
+    @SuppressWarnings("deprecation")
     private void showFullScreen(){
         if (getSupportActionBar() != null) getSupportActionBar().hide();
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R){
+            final WindowInsetsController insetsController = getWindow().getInsetsController();
+            if (insetsController != null){
+                insetsController.hide(WindowInsets.Type.statusBars());
+            }
+        }else {
+            getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                    WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        }
     }
 
     private void initViewModel(){
@@ -105,7 +116,7 @@ public class MainActivity extends AppCompatActivity {
     private void setupWebView(){
         swToggleWeb.setChecked(true);
         wvWeb.getSettings().setJavaScriptEnabled(true);
-        wvWeb.loadUrl("https://www.quora.com/");
+        wvWeb.loadUrl("https://hoahanoi.net");
     }
 
     private void handleSwitchWebView(){
