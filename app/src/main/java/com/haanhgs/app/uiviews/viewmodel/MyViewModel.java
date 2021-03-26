@@ -6,7 +6,7 @@ import androidx.lifecycle.LiveData;
 
 public class MyViewModel extends androidx.lifecycle.ViewModel {
 
-    private Repo repo = new Repo();
+    private final Repo repo = new Repo();
 
     public LiveData<Model> getModel(){
         return repo.getLiveData();

@@ -9,47 +9,18 @@ import android.view.View;
 import android.view.WindowInsets;
 import android.view.WindowInsetsController;
 import android.view.WindowManager;
-import android.webkit.WebView;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.RadioGroup;
-import android.widget.Switch;
-import android.widget.TextClock;
 import com.haanhgs.app.uiviews.R;
+import com.haanhgs.app.uiviews.databinding.ActivityMainBinding;
 import com.haanhgs.app.uiviews.model.Model;
 import com.haanhgs.app.uiviews.viewmodel.MyViewModel;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
-import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 
 public class MainActivity extends AppCompatActivity {
 
-    @BindView(R.id.cbTransparent)
-    CheckBox cbTransparent;
-    @BindView(R.id.cbTint)
-    CheckBox cbTint;
-    @BindView(R.id.cbResize)
-    CheckBox cbResize;
-    @BindView(R.id.ivImage)
-    ImageView ivImage;
-    @BindView(R.id.rgLocation)
-    RadioGroup rgLocation;
-    @BindView(R.id.etLocation)
-    EditText etLocation;
-    @BindView(R.id.bnLocation)
-    Button bnLocation;
-    @BindView(R.id.tcClock)
-    TextClock tcClock;
-    @BindView(R.id.swToggleWeb)
-    Switch swToggleWeb;
-    @BindView(R.id.wvWeb)
-    WebView wvWeb;
-
     private MyViewModel viewModel;
+    private ActivityMainBinding binding;
 
     @SuppressWarnings("deprecation")
     private void showFullScreen(){
@@ -69,34 +40,34 @@ public class MainActivity extends AppCompatActivity {
         viewModel = new ViewModelProvider(this).get(MyViewModel.class);
 
         viewModel.getModel().observe(this, model -> {
-            tcClock.setTimeZone(model.getTimezone());
-            ivImage.setAlpha(model.getAlpha());
-            ivImage.setScaleX(model.getScale());
-            ivImage.setScaleY(model.getScale());
-            ivImage.setColorFilter(model.getFilter());
-            wvWeb.setVisibility(model.isShow() ? View.VISIBLE : View.INVISIBLE);
-            bnLocation.setText(model.getString());
+            binding.tcClock.setTimeZone(model.getTimezone());
+            binding.ivImage.setAlpha(model.getAlpha());
+            binding.ivImage.setScaleX(model.getScale());
+            binding.ivImage.setScaleY(model.getScale());
+            binding.ivImage.setColorFilter(model.getFilter());
+            binding.wvWeb.setVisibility(model.isShow() ? View.VISIBLE : View.INVISIBLE);
+            binding.bnLocation.setText(model.getString());
         });
     }
 
     private void handleCheckBoxTransparent(){
-        cbTransparent.setOnCheckedChangeListener((buttonView, isChecked) ->
+        binding.cbTransparent.setOnCheckedChangeListener((buttonView, isChecked) ->
                 viewModel.setAlpha(isChecked ? 0.3f : 1f));
     }
 
     private void handleCheckBoxTint(){
-        cbTint.setOnCheckedChangeListener((buttonView, isChecked) ->
+        binding.cbTint.setOnCheckedChangeListener((buttonView, isChecked) ->
             viewModel.setFilter(isChecked ? Color.argb(128, 255, 255, 0) : Color.argb(0, 0, 0, 0)));
     }
 
     private void handleCheckBoxResize(){
-        cbResize.setOnCheckedChangeListener((buttonView, isChecked) ->
+        binding.cbResize.setOnCheckedChangeListener((buttonView, isChecked) ->
                 viewModel.setScale(isChecked ? 0.5f : 1f));
     }
 
     private void toggleRadioGroupLocation(){
-        rgLocation.check(R.id.rbnSaigon);
-        rgLocation.setOnCheckedChangeListener((group, checkedId) -> {
+        binding.rgLocation.check(R.id.rbnSaigon);
+        binding.rgLocation.setOnCheckedChangeListener((group, checkedId) -> {
             switch (checkedId){
                 case R.id.rbnBerlin:
                     viewModel.setTimezone(Model.Berlin);
@@ -114,20 +85,22 @@ public class MainActivity extends AppCompatActivity {
     //enable javascript
     @SuppressLint("SetJavaScriptEnabled")
     private void setupWebView(){
-        swToggleWeb.setChecked(true);
-        wvWeb.getSettings().setJavaScriptEnabled(true);
-        wvWeb.loadUrl("https://hoahanoi.net");
+        binding.swToggleWeb.setChecked(true);
+//        WebSettings webSettings = binding.wvWeb.getSettings();
+//        webSettings.setJavaScriptEnabled(true);
+        binding.wvWeb.loadUrl("https://whyshop.org");
     }
 
     private void handleSwitchWebView(){
-        swToggleWeb.setOnCheckedChangeListener((buttonView, isChecked)
+        binding.swToggleWeb.setOnCheckedChangeListener((buttonView, isChecked)
                 -> viewModel.setShow(isChecked));
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        binding = ActivityMainBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
         ButterKnife.bind(this);
         showFullScreen();
         initViewModel();
@@ -137,12 +110,12 @@ public class MainActivity extends AppCompatActivity {
         toggleRadioGroupLocation();
         setupWebView();
         handleSwitchWebView();
+        binding.bnLocation.setOnClickListener(view->onLocationClick());
     }
 
-    @OnClick(R.id.bnLocation)
-    public void onViewClicked() {
-        if (!TextUtils.isEmpty(etLocation.getText())){
-            viewModel.setString(etLocation.getText().toString());
+    public void onLocationClick() {
+        if (!TextUtils.isEmpty(binding.etLocation.getText())){
+            viewModel.setString(binding.etLocation.getText().toString());
         }
     }
 }
